@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 4%;
+            padding: 3%;
+            background-color: #cadaea;
+        }
+        .container {
+            width: 60%;
+            margin: 50px auto;
+            padding: 3%;
+            background-color: #faf9f9;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            width: 100%;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Upload File</h2>
+        <form action="process_file.php" method="post" enctype="multipart/form-data">
+            <input type="file" name="fileToUpload" id="fileToUpload">
+            <br>
+            <input type="submit" value="Upload File" name="submit">
+        </form>
+   
+
+    </div>
+</body>
+</html>
