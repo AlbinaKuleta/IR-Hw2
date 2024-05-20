@@ -5,16 +5,15 @@ if (isset($_SESSION['index']) && isset($_SESSION['totalWords'])) {
     $index = $_SESSION['index'];
     $totalWords = $_SESSION['totalWords'];
 
-    // Calculate TF, IDF, and TF-IDF
     $tf = [];
     foreach ($index as $word => $positions) {
         $tf[$word] = count($positions) / $totalWords;
     }
 
     $idf = [];
-    $totalDocuments = 1; // We have one document
+    $totalDocuments = 1;
     foreach ($index as $word => $positions) {
-        $idf[$word] = log($totalWords / count($index[$word]), 10); // Using base 10 for IDF calculation
+        $idf[$word] = log($totalWords / count($index[$word]), 10);
     }
 
     $tfidf = [];

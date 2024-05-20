@@ -1,25 +1,26 @@
 <?php
 session_start();
 
-if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
-    $fileName = $_FILES["fileToUpload"]["name"];
-    $fileTmpName = $_FILES["fileToUpload"]["tmp_name"];
+$index = [];
+$totalWords = 0;
 
-    // Lexo përmbajtjen e fajllit
-    $fileContent = file_get_contents($fileTmpName);
-    // Ndaj tekstin në fjalë duke përdorur shenjat e ndarjes mes fjalëve
-    $words = preg_split('/[\s,.;]+/', strtolower($fileContent), -1, PREG_SPLIT_NO_EMPTY);
-    // Krijo indeksin e fjalëve
-    $index = [];
-    foreach ($words as $position => $word) {
-        $word = trim($word, ".,!?\"'");
-        if (!isset($index[$word])) {
-            $index[$word] = [];
+if (isset($_FILES["filesToUpload"])) {
+    foreach ($_FILES["filesToUpload"]["tmp_name"] as $key => $tmpName) {
+        if ($_FILES["filesToUpload"]["error"][$key] == 0) {
+            $fileContent = file_get_contents($tmpName);
+            $words = preg_split('/[\s,.;]+/', strtolower($fileContent), -1, PREG_SPLIT_NO_EMPTY);
+
+            foreach ($words as $position => $word) {
+                $word = trim($word, ".,!?\"'");
+                if (!isset($index[$word])) {
+                    $index[$word] = [];
+                }
+                $index[$word][] = $totalWords + $position + 1;
+            }
+            $totalWords += count($words);
         }
-        $index[$word][] = $position + 1;
     }
 
-    // Ndaj fjalët në grupet çifte dhe tekë
     $evenWords = [];
     $oddWords = [];
     foreach ($index as $word => $positions) {
@@ -30,19 +31,16 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
         }
     }
 
-    // Eksporto grupet tekë në file të jashtëm (output.txt ose output.csv)
-    $outputFileName = 'output.txt'; // ose 'output.csv' për CSV format
+    $outputFileName = 'output.txt';
     $outputFile = fopen($outputFileName, 'w');
     foreach ($oddWords as $word => $positions) {
         fwrite($outputFile, "{$word}: " . implode(', ', $positions) . "\n");
     }
     fclose($outputFile);
 
-    // Ruaj indexin në një sesion për të përdorur në output.php
     $_SESSION['index'] = $index;
-    $_SESSION['totalWords'] = count($words);
+    $_SESSION['totalWords'] = $totalWords;
 
-    // Përgatitni mesazhet për t'u shfaqur në HTML më vonë
     $resultBoxContent = "<div class='result-box'><h3>Grupet Çifte</h3>";
     foreach ($evenWords as $word => $positions) {
         $resultBoxContent .= "<p>{$word}: " . implode(', ', $positions) . "</p>";
@@ -69,7 +67,6 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
             margin: 0;
             padding: 0;
         }
-
         .container {
             margin: 50px auto;
             width: 80%;
@@ -78,12 +75,10 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-
         .result-box {
             margin-top: 20px;
             padding: 10px;
@@ -91,18 +86,15 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
             border-radius: 5px;
             background-color: #f8f9fa;
         }
-
         .search-bar input[type="text"] {
             padding: 10px;
             width: 80%;
             max-width: 500px;
             font-size: 16px;
         }
-
         .highlight {
             background-color: yellow;
         }
-
         .add-button {
             display: inline-block;
             padding: 10px 20px;
@@ -113,7 +105,6 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
         .add-button:hover {
             background-color: #0056b3;
         }
@@ -124,12 +115,10 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
             const resultBox = document.querySelector('.result-box');
             const paragraphs = resultBox.getElementsByTagName('p');
 
-            // Remove previous highlights
             for (let paragraph of paragraphs) {
                 paragraph.innerHTML = paragraph.innerHTML.replace(/<span class="highlight">([^<]*)<\/span>/gi, '$1');
             }
 
-            // Highlight the search term
             if (searchInput) {
                 for (let paragraph of paragraphs) {
                     const regex = new RegExp(`(${searchInput})`, 'gi');
@@ -141,7 +130,6 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
         function addWord() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
             if (searchInput) {
-                // Check if the word is not already present in the result box
                 const resultBox = document.querySelector('.result-box');
                 const paragraphs = resultBox.getElementsByTagName('p');
                 let wordExists = false;
@@ -152,7 +140,6 @@ if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
                     }
                 }
                 if (!wordExists) {
-                    // Export the word to output.txt
                     const xhr = new XMLHttpRequest();
                     xhr.open('POST', 'export_word.php', true);
                     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

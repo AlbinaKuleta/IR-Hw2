@@ -49,17 +49,14 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h2>Upload File</h2>
+        <h2>Upload Files</h2>
         <form action="process_file.php" method="post" enctype="multipart/form-data">
-            <input type="file" name="fileToUpload" id="fileToUpload">
+            <input type="file" name="filesToUpload[]" id="filesToUpload" multiple>
             <br>
-            <input type="submit" value="Upload File" name="submit">
+            <input type="submit" value="Upload Files" name="submit">
         </form>
-   
-
     </div>
 </body>
 </html>
